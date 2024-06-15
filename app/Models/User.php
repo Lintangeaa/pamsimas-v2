@@ -11,6 +11,8 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+
+
     /**
      * The attributes that are mass assignable.
      *
@@ -20,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role'
     ];
 
     /**
@@ -47,6 +50,6 @@ class User extends Authenticatable
 
     public function pelanggan()
     {
-        return $this->hasOne(Pelanggan::class);
+        return $this->hasOne(Pelanggan::class, 'user_id', 'id');
     }
 }

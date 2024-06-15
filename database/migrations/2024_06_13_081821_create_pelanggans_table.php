@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pelanggans', function (Blueprint $table) {
             $table->id();
-            $table->foreignUuid('user_id')->nullable()->index();
+            $table->foreignId('user_id')->nullable()->index();
             $table->string('nama_pelanggan');
             $table->string('no_pelanggan')->unique();
             $table->string('alamat_pelanggan');

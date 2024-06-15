@@ -17,7 +17,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/admin/pelanggan', [PelangganController::class, 'index'])->name('admin.pelanggan');
+    Route::get('/admin/pelanggan', [PelangganController::class, 'getPelanggan'])->name('admin.pelanggan');
+    Route::get('/admin/tambah-pelanggan', [PelangganController::class, 'getTambahPelanggan'])->name('tambah-pelanggan');
+    Route::post('/admin/tambah-pelanggan', [PelangganController::class, 'tambahPelanggan'])->name('admin.tambah.pelanggan');
+    Route::get('/admin/edit-pelanggan/{id}', [PelangganController::class, 'edit'])->name('admin.pelanggan.edit');
+    Route::put('/admin/edit-pelanggan/{uuid}', [PelangganController::class, 'update'])->name('admin.pelanggan.update');
+    Route::delete('/admin/pelanggan/{id}', [PelangganController::class, 'delete'])->name('admin.pelanggan.delete');
 });
 
 require __DIR__ . '/auth.php';

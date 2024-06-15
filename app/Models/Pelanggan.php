@@ -9,8 +9,18 @@ class Pelanggan extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+        'nama_pelanggan',
+        'no_pelanggan',
+        'alamat_pelanggan'
+    ];
+
+
+
+
     public function user()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

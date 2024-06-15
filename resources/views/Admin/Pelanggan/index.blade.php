@@ -11,7 +11,9 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-lg font-semibold mb-2">Daftar Pelanggan</h3>
                     <div class="flex justify-end mb-2">
-                        <x-primary-button>Tambah</x-primary-button>
+                        <x-redirect-button :href="route('tambah-pelanggan')">
+                            Tambah
+                        </x-redirect-button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
@@ -28,22 +30,22 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200 dark:divide-gray-600">
                                 @php $count = 1; @endphp
-                                @foreach ($pelanggans as $pelanggan)
+                                @foreach ($pelanggans as $data)
 
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $count ++ }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $pelanggan->name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $pelanggan->email }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $pelanggan->nama_pelanggan }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $pelanggan->no_pelanggan }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $pelanggan->alamat_pelanggan }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $data->name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $data->email }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $data->nama_pelanggan }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $data->no_pelanggan }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $data->alamat_pelanggan }}</td>
                                     <td>
-                                        <x-custom-button class="bg-red-500" onclick="a">
+                                        <x-custom-button class="bg-red-500" onclick="deletePelanggan('{{ $data->id }}')">
                                             <i class="bi bi-trash" style="font-size: larger;"></i>
                                         </x-custom-button>
-                                        <x-custom-button class="bg-cyan-500">
+                                        <x-redirect-button class="bg-cyan-500" :href="route('admin.pelanggan.edit', $data->id)">
                                             <i class="bi bi-pencil-square" style="font-size: larger;"></i>
-                                        </x-custom-button>
+                                        </x-redirect-button>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -54,4 +56,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function deletePelanggan(id) {
+            if (confirm('Anda yakin ingin menghapus pelanggan ini?')) {
+                fetch(`/admin/pelanggan/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload(); // Refresh halaman setelah penghapusan berhasil
+                        } else {
+                            alert('Gagal menghapus pelanggan. Silakan coba lagi.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan dalam penghapusan pelanggan.');
+                    });
+            }
+        }
+    </script>
 </x-app-layout>

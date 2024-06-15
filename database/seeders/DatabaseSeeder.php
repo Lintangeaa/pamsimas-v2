@@ -23,20 +23,20 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Buat user pelanggan
-        $pelangganUser = User::create([
-            'id' => Uuid::uuid4()->toString(),
-            'name' => 'Test Pelanggan',
-            'email' => 'pelanggan@gmail.com',
-            'role' => 'pelanggan',
-            'password' => Hash::make('password')
-        ]);
+        // $pelangganUser = User::create([
+        //     'id' => Uuid::uuid4()->toString(),
+        //     'name' => 'Test Pelanggan',
+        //     'email' => 'pelanggan@gmail.com',
+        //     'role' => 'pelanggan',
+        //     'password' => Hash::make('password')
+        // ]);
 
-        // Buat data pelanggan yang terkait dengan user tersebut
-        Pelanggan::create([
-            'user_id' => $pelangganUser->id,
-            'nama_pelanggan' => 'Pelanggan A',
-            'no_pelanggan' => 'PLG001',
-            'alamat_pelanggan' => 'Alamat Pelanggan A',
-        ]);
+        // // Buat data pelanggan yang terkait dengan user tersebut
+        // Pelanggan::create([
+        //     'user_id' => $pelangganUser->id,
+        //     'nama_pelanggan' => 'Pelanggan A',
+        //     'no_pelanggan' => 'PLG001',
+        //     'alamat_pelanggan' => 'Alamat Pelanggan A',
+        // ]);
     }
 }
