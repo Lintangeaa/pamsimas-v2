@@ -40,9 +40,13 @@
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $data->no_pelanggan }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $data->alamat_pelanggan }}</td>
                                     <td>
-                                        <x-custom-button class="bg-red-500" onclick="deletePelanggan('{{ $data->id }}')">
-                                            <i class="bi bi-trash" style="font-size: larger;"></i>
-                                        </x-custom-button>
+                                        <form id="form-delete-{{ $data->id }}" action="{{ route('admin.pelanggan.delete', $data->id) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-custom-button class="bg-red-500" onclick="deletePelanggan('{{ $data->id }}')">
+                                                <i class="bi bi-trash" style="font-size: larger;"></i>
+                                            </x-custom-button>
+                                        </form>
                                         <x-redirect-button class="bg-cyan-500" :href="route('admin.pelanggan.edit', $data->id)">
                                             <i class="bi bi-pencil-square" style="font-size: larger;"></i>
                                         </x-redirect-button>
@@ -59,24 +63,8 @@
 
     <script>
         function deletePelanggan(id) {
-            if (confirm('Anda yakin ingin menghapus pelanggan ini?')) {
-                fetch(`/admin/pelanggan/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            location.reload(); // Refresh halaman setelah penghapusan berhasil
-                        } else {
-                            alert('Gagal menghapus pelanggan. Silakan coba lagi.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan dalam penghapusan pelanggan.');
-                    });
+            if (confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) {
+                document.getElementById('form-delete-' + id).submit();
             }
         }
     </script>
