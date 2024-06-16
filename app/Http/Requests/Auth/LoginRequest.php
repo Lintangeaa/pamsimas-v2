@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
+use App\Models\Pelanggan;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +29,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'username_or_no_pelanggan' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -41,11 +43,38 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $credentials = ['password' => $this->input('password')];
 
+        // Determine the role based on input
+        if ($this->input('role') === 'admin') {
+            $credentials['username'] = $this->input('username_or_no_pelanggan');
+        } else {
+            // For 'pelanggan' role, find the user by 'no_pelanggan'
+            $pelanggan = Pelanggan::where('no_pelanggan', $this->input('username_or_no_pelanggan'))->first();
+
+            if (!$pelanggan) {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'username_or_no_pelanggan' => trans('auth.failed'),
+                ]);
+            }
+
+            $user = User::find($pelanggan->user_id);
+
+            if (!$user) {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'username_or_no_pelanggan' => trans('auth.failed'),
+                ]);
+            }
+
+            $credentials['username'] = $user->username;
+        }
+
+        if (!Auth::attempt($credentials, $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'username_or_no_pelanggan' => trans('auth.failed'),
             ]);
         }
 
@@ -59,7 +88,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -68,7 +97,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            'username_or_no_pelanggan' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
@@ -80,6 +109,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->input('username_or_no_pelanggan')) . '|' . $this->ip());
     }
 }

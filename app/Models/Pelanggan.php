@@ -15,12 +15,8 @@ class Pelanggan extends Model
         'no_pelanggan',
         'alamat_pelanggan'
     ];
-
-
-
-
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class);
     }
 }

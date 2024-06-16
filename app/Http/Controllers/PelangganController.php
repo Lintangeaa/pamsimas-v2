@@ -10,12 +10,18 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Ramsey\Uuid\Uuid;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Auth;
 
 class PelangganController extends Controller
 {
     public function getPelanggan()
     {
-        $pelanggans = DB::select('SELECT u.id, u.name, u.email,p.nama_pelanggan , p.no_pelanggan , p.alamat_pelanggan  FROM users u JOIN pelanggans p ON u.id = p.user_id;');
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Fetch users with their related pelanggan
+        $pelanggans = User::with('pelanggan')->where('role', 'pelanggan')->get();
 
         return view('Admin.Pelanggan.Index', compact('pelanggans'));
     }
@@ -30,8 +36,7 @@ class PelangganController extends Controller
     {
         // Validasi input form pelanggan
         $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users,email',
+            'username' => 'required|string',
             'nama_pelanggan' => 'required|string',
             'alamat_pelanggan' => 'required|string',
         ]);
@@ -45,9 +50,8 @@ class PelangganController extends Controller
         // Simpan data ke dalam tabel 'users' menggunakan Eloquent
 
         $user = new User();
-        $user->name = $request->input('name');
-        $user->email = $request->input('email');
-        $user->password = Hash::make($request->input('name') . '123');
+        $user->username = $request->input('username');
+        $user->password = Hash::make($request->input('username') . '123');
         $user->role = 'pelanggan';
         $user->save();
 
@@ -79,15 +83,13 @@ class PelangganController extends Controller
     {
         try {
             $request->validate([
-                'name' => 'required|string',
-                'email' => 'required|email|unique:users,email,' . $id,
+                'username' => 'required|string',
                 'alamat_pelanggan' => 'required|string',
                 'nama_pelanggan' => 'required|string',
             ]);
 
             $user = User::findOrFail($id);
-            $user->name = $request->input('name');
-            $user->email = $request->input('email');
+            $user->username = $request->input('username');
             if ($request->has('password')) {
                 $user->password = Hash::make($request->input('password'));
             }

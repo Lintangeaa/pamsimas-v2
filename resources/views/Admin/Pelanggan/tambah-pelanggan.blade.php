@@ -1,43 +1,44 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="text-xl font-semibold leading-tight text-gray-800">
             {{ __('Tambah Pelanggan') }}
         </h2>
     </x-slot>
     <div class="p-12">
-        <form action="{{ route('admin.tambah.pelanggan') }}" method="POST" class="bg-white p-5 rounded border">
+        <form action="{{ route('admin.tambah.pelanggan') }}" method="POST" class="p-5 bg-white border rounded">
             @csrf
             <div class="mb-4">
-                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama</label>
-                <input type="text" name="name" id="name" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required>
-            </div>
-            <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                <input type="email" name="email" id="email" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required>
-            </div>
-            <div class="mb-4">
-                <label for="nama_pelanggan" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Pelanggan</label>
-                <input type="text" name="nama_pelanggan" id="nama_pelanggan" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required>
+                <x-input-label for="username" :value="__('Username')" />
+                <x-text-input id="username" name="username" type="text" class="block w-full mt-1" required
+                    autocomplete="username" />
             </div>
 
             <div class="mb-4">
-                <label for="alamat_pelanggan" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Alamat Pelanggan</label>
-                <textarea name="alamat_pelanggan" id="alamat_pelanggan" rows="3" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required></textarea>
+                <x-input-label for="nama_pelanggan" :value="__('Nama Pelanggan')" />
+                <x-text-input id="nama_pelanggan" name="nama_pelanggan" type="text" class="block w-full mt-1"
+                    required autocomplete="nama_pelanggan" />
+            </div>
+
+            <div class="mb-4">
+                <x-input-label for="alamat_pelanggan" :value="__('Alamat Pelanggan')" />
+                <textarea id="alamat_pelanggan" name="alamat_pelanggan" rows="3"
+                    class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    required></textarea>
             </div>
             <div>
-                <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Simpan</button>
+                <button type="submit"
+                    class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">Simpan</button>
             </div>
         </form>
     </div>
-    @if(session('success'))
-    <script>
-        Swal.fire({
-            title: 'Sukses!',
-            text: `{{ session('success') }}`,
-            icon: 'success',
-            confirmButtonText: 'OK'
-        });
-    </script>
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                title: 'Sukses!',
+                text: `{{ session('success') }}`,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        </script>
     @endif
-
 </x-app-layout>
