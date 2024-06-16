@@ -10,12 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('pelanggans', function (Blueprint $table) {
+        Schema::create('tagihans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('nama_pelanggan');
-            $table->string('no_pelanggan')->unique();
-            $table->string('alamat_pelanggan');
+            $table->string('periode');
+            $table->decimal('pemakaian', 10, 2);
+            $table->decimal('total', 10, 2);
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('pelanggans');
+        Schema::dropIfExists('tagihans');
     }
 };

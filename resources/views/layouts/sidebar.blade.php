@@ -46,22 +46,36 @@
     </div>
 
     <!-- Navigation Links -->
+
     <div class="flex-1 px-5 mt-10 overflow-y-auto">
         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="flex">
             <i class="bi bi-house-door" style="font-size: larger;"></i>
-            <span> {{ __('Dashboard') }}</span>
+            <span>{{ __('Dashboard') }}</span>
         </x-nav-link>
+
         @if (Auth::user()->role === 'admin')
-            <x-nav-link :href="route('admin.pelanggan')" :active="request()->routeIs('admin.pelanggan')" class="flex items-center ">
+            <x-nav-link :href="route('admin.pelanggan')" :active="request()->routeIs('admin.pelanggan')" class="flex items-center">
                 <i class="bi bi-receipt" style="font-size: larger;"></i>
-                <span> {{ __('Data Pelanggan') }}</span>
+                <span>{{ __('Data Pelanggan') }}</span>
+            </x-nav-link>
+            <x-nav-link :href="route('admin.tagihan.index')" :active="request()->routeIs('admin.tagihan.index')" class="flex items-center">
+                <i class="bi bi-receipt" style="font-size: larger;"></i>
+                <span>{{ __('Tagihan Pelanggan') }}</span>
+            </x-nav-link>
+
+            <x-nav-link :href="route('admin.pembayaran.index')" :active="request()->routeIs('admin.pembayaran.index')" class="flex items-center">
+                <i class="bi bi-receipt" style="font-size: larger;"></i>
+                <span>{{ __('Pembayaran') }}</span>
             </x-nav-link>
         @endif
+
         @if (Auth::user()->role === 'pelanggan')
-            <x-nav-link :href="route('admin.pelanggan')" :active="request()->routeIs('admin.pelanggan')" class="flex items-center ">
+            <x-nav-link :href="route('pelanggan.tagihan')" :active="request()->routeIs('pelanggan.tagihan')" class="flex items-center">
                 <i class="bi bi-receipt" style="font-size: larger;"></i>
-                <span> {{ __('Tagihan') }}</span>
+                <span>{{ __('Tagihan') }}</span>
             </x-nav-link>
         @endif
     </div>
+
+
 </aside>
