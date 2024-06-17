@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pembayaran;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Tagihan;
+use Illuminate\Support\Carbon;
 
 class TagihanController extends Controller
 {
     public function index()
     {
         $tagihans = Tagihan::all();
+
         return view('admin.tagihan.index', compact('tagihans'));
     }
 
@@ -31,7 +34,30 @@ class TagihanController extends Controller
             'total' => 'required|numeric',
         ]);
 
-        // Simpan data ke database
+        // Ambil informasi user berdasarkan user_id
+        $user = User::findOrFail($request->user_id);
+
+        // Retrieve Midtrans API keys from configuration
+        $serverKey = config('services.midtrans.server_key');
+        $clientKey = config('services.midtrans.client_key');
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $user->pelanggan->no_pelanggan . '_' . Carbon::now()->timestamp,
+                'gross_amount' => $request->total,
+            ],
+            'customer_details' => [
+                'first_name' => $user->pelanggan->nama_pelanggan,
+            ],
+        ];
+
+        \Midtrans\Config::$serverKey = $serverKey;
+        \Midtrans\Config::$clientKey = $clientKey;
+
+
+        $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+        // Simpan data ke database untuk tagihan
         Tagihan::create([
             'user_id' => $request->user_id,
             'periode' => $request->periode,
@@ -39,8 +65,15 @@ class TagihanController extends Controller
             'total' => $request->total,
         ]);
 
-        // Redirect dengan pesan sukses
-        return redirect()->route('admin.tagihan.index')->with('success', 'Tagihan berhasil ditambahkan!');
+
+
+        try {
+            return redirect()->route('admin.tagihan.index')->with('success', 'Tagihan berhasil ditambahkan dan pembayaran sedang diproses.');
+
+        } catch (\Exception $e) {
+            // Handle error jika terjadi masalah saat mendapatkan Snap Token
+            return back()->with('error', 'Gagal membuat pembayaran. Silakan coba lagi.');
+        }
     }
 
     public function edit($id)
@@ -98,4 +131,35 @@ class TagihanController extends Controller
             return redirect()->back();
         }
     }
+
+    public function cariTagihan(Request $request)
+    {
+        // Mendapatkan nomor pelanggan dari request
+        $noPelanggan = $request->input('no_pelanggan');
+
+        // Query untuk mencari tagihan berdasarkan nomor pelanggan yang belum memiliki pembayaran
+        $tagihans = Tagihan::whereHas('user.pelanggan', function ($query) use ($request) {
+            if ($request->has('no_pelanggan')) {
+                $query->where('no_pelanggan', 'like', '%' . $request->no_pelanggan . '%');
+            }
+        })->whereDoesntHave('pembayarans')->get();
+
+        return view('admin.tagihan.cari-tagihan', compact('tagihans'));
+    }
+
+
+    // CONTROLLER PELANGGAN
+    public function getTagihan()
+    {
+        // Mendapatkan ID user yang sedang diautorisasi
+        $userId = auth()->user()->id;
+
+        // Query untuk mencari tagihan yang belum memiliki pembayaran berdasarkan user ID
+        $tagihans = Tagihan::whereDoesntHave('pembayarans')
+            ->where('user_id', $userId)
+            ->get();
+
+        return view('pelanggan.tagihan.index', compact('tagihans'));
+    }
+
 }

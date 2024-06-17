@@ -53,20 +53,23 @@
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $tagihan->periode }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $tagihan->pemakaian }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $tagihan->total }}</td>
-                                        <td class="flex pt-2 space-x-2">
-                                            <form id="form-delete-{{ $tagihan->id }}"
-                                                action="{{ route('admin.tagihan.delete', $tagihan->id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <x-custom-button class="bg-red-500"
-                                                    onclick="deleteTagihan('{{ $tagihan->id }}')" type="button">
-                                                    <i class="bi bi-trash" style="font-size: larger;"></i>
-                                                </x-custom-button>
-                                            </form>
-                                            <x-redirect-button class="bg-cyan-500" :href="route('admin.tagihan.edit', $tagihan->id)">
-                                                <i class="bi bi-pencil-square" style="font-size: larger;"></i>
-                                            </x-redirect-button>
+                                        <td class="flex pt-2 space-x-2 text-center">
+                                            @if ($tagihan->pembayarans)
+                                            @else
+                                                <form id="form-delete-{{ $tagihan->id }}"
+                                                    action="{{ route('admin.tagihan.delete', $tagihan->id) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <x-custom-button class="bg-red-500"
+                                                        onclick="deleteTagihan('{{ $tagihan->id }}')" type="button">
+                                                        <i class="bi bi-trash" style="font-size: larger;"></i>
+                                                    </x-custom-button>
+                                                </form>
+                                                <x-redirect-button class="bg-cyan-500" :href="route('admin.tagihan.edit', $tagihan->id)">
+                                                    <i class="bi bi-pencil-square" style="font-size: larger;"></i>
+                                                </x-redirect-button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

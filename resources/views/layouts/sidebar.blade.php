@@ -4,7 +4,7 @@
         <!-- Logo -->
         <div class="flex items-center justify-center h-16">
             <a href="{{ route('dashboard') }}">
-                <x-application-logo class="block w-auto text-gray-800 fill-current h-9" />
+                <div class="text-2xl font-semibold text-blue-800">Pamsimas</div>
             </a>
         </div>
 
@@ -48,31 +48,49 @@
     <!-- Navigation Links -->
 
     <div class="flex-1 px-5 mt-10 overflow-y-auto">
-        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="flex">
-            <i class="bi bi-house-door" style="font-size: larger;"></i>
-            <span>{{ __('Dashboard') }}</span>
-        </x-nav-link>
+
 
         @if (Auth::user()->role === 'admin')
+            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="flex">
+                <i class="bi bi-house-door" style="font-size: larger;"></i>
+                <span>{{ __('Dashboard') }}</span>
+            </x-nav-link>
+
             <x-nav-link :href="route('admin.pelanggan')" :active="request()->routeIs('admin.pelanggan')" class="flex items-center">
-                <i class="bi bi-receipt" style="font-size: larger;"></i>
+                <i class="bi bi-person" style="font-size: larger;"></i> <!-- Icon untuk Data Pelanggan -->
                 <span>{{ __('Data Pelanggan') }}</span>
             </x-nav-link>
+
             <x-nav-link :href="route('admin.tagihan.index')" :active="request()->routeIs('admin.tagihan.index')" class="flex items-center">
-                <i class="bi bi-receipt" style="font-size: larger;"></i>
+                <i class="bi bi-receipt" style="font-size: larger;"></i> <!-- Icon untuk Tagihan Pelanggan -->
                 <span>{{ __('Tagihan Pelanggan') }}</span>
             </x-nav-link>
 
             <x-nav-link :href="route('admin.pembayaran.index')" :active="request()->routeIs('admin.pembayaran.index')" class="flex items-center">
-                <i class="bi bi-receipt" style="font-size: larger;"></i>
+                <i class="bi bi-cash" style="font-size: larger;"></i> <!-- Icon untuk Pembayaran -->
                 <span>{{ __('Pembayaran') }}</span>
+            </x-nav-link>
+
+            <x-nav-link :href="route('admin.laporan.index')" :active="request()->routeIs('admin.laporan.index')" class="flex items-center">
+                <i class="bi bi-file-earmark-text" style="font-size: larger;"></i> <!-- Icon untuk Laporan -->
+                <span>{{ __('Laporan') }}</span>
+            </x-nav-link>
+
+            <x-nav-link :href="route('admin.tagihan.cari')" :active="request()->routeIs('admin.tagihan.cari')" class="flex items-center">
+                <i class="bi bi-search" style="font-size: larger;"></i> <!-- Icon untuk Cari Tagihan -->
+                <span>{{ __('Cari Tagihan') }}</span>
             </x-nav-link>
         @endif
 
         @if (Auth::user()->role === 'pelanggan')
-            <x-nav-link :href="route('pelanggan.tagihan')" :active="request()->routeIs('pelanggan.tagihan')" class="flex items-center">
+            <x-nav-link :href="route('pelanggan.tagihan.index')" :active="request()->routeIs('pelanggan.tagihan.index')" class="flex items-center">
                 <i class="bi bi-receipt" style="font-size: larger;"></i>
                 <span>{{ __('Tagihan') }}</span>
+            </x-nav-link>
+
+            <x-nav-link :href="route('pelanggan.pembayaran.index')" :active="request()->routeIs('pelanggan.pembayaran.index')" class="flex items-center">
+                <i class="bi bi-cash" style="font-size: larger;"></i> <!-- Icon untuk Pembayaran -->
+                <span>{{ __('Pembayaran') }}</span>
             </x-nav-link>
         @endif
     </div>
