@@ -34,29 +34,6 @@ class TagihanController extends Controller
             'total' => 'required|numeric',
         ]);
 
-        // Ambil informasi user berdasarkan user_id
-        $user = User::findOrFail($request->user_id);
-
-        // Retrieve Midtrans API keys from configuration
-        $serverKey = config('services.midtrans.server_key');
-        $clientKey = config('services.midtrans.client_key');
-
-        $params = [
-            'transaction_details' => [
-                'order_id' => $user->pelanggan->no_pelanggan . '_' . Carbon::now()->timestamp,
-                'gross_amount' => $request->total,
-            ],
-            'customer_details' => [
-                'first_name' => $user->pelanggan->nama_pelanggan,
-            ],
-        ];
-
-        \Midtrans\Config::$serverKey = $serverKey;
-        \Midtrans\Config::$clientKey = $clientKey;
-
-
-        $snapToken = \Midtrans\Snap::getSnapToken($params);
-
         // Simpan data ke database untuk tagihan
         Tagihan::create([
             'user_id' => $request->user_id,
@@ -114,10 +91,8 @@ class TagihanController extends Controller
             // Cari pengguna berdasarkan UUID
             $tagihan = Tagihan::findOrFail($id);
 
-
             // Hapus pengguna
             $tagihan->delete();
-
 
             session()->flash('success', 'Tagihan berhasil dihapus.');
 

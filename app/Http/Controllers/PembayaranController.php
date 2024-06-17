@@ -90,7 +90,6 @@ class PembayaranController extends Controller
             $pembayaran = Pembayaran::where('tagihan_id', $tagihan->id)->first();
 
             if ($pembayaran) {
-
                 $snapToken = $pembayaran->snap_token;
             } else {
                 // Jika belum ada pembayaran, maka baru akan dibuat
@@ -101,6 +100,11 @@ class PembayaranController extends Controller
                 Config::$clientKey = config('services.midtrans.client_key');
                 Config::$isSanitized = true;
                 Config::$is3ds = true;
+
+                Config::$curlOptions = [
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
+                ];
 
                 // Parameter untuk pembayaran Snap
                 $params = [
