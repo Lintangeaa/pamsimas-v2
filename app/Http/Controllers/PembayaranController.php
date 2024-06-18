@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\InvoiceExport;
 use App\Exports\LaporanExport;
 use App\Models\Pembayaran;
 use App\Models\Tagihan;
@@ -78,7 +79,7 @@ class PembayaranController extends Controller
             }
         }
 
-        return view('admin.pembayaran.index', compact('tagihans'));
+        return view('Admin/Pembayaran/index', compact('tagihans'));
     }
 
     public function bayar(Request $request, $tagihan_id)
@@ -226,12 +227,12 @@ class PembayaranController extends Controller
             }
         }
 
-        return view('pelanggan.pembayaran.index', compact('pembayarans'));
+        return view('Pelanggan/Pembayaran/index', compact('pembayarans'));
     }
 
     public function cetakInvoice($tagihan_id)
     {
-        $export = new LaporanExport();
+        $export = new InvoiceExport();
         $export->exportInvoice($tagihan_id);
     }
 }

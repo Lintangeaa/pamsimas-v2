@@ -46,16 +46,23 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($data as $row)
+
+            @foreach ($data as $laporan)
                 <tr>
-                    <td>{{ $row['No'] }}</td>
-                    <td>{{ $row['Nama Pelanggan'] }}</td>
-                    <td>{{ $row['No Pelanggan'] }}</td>
-                    <td>{{ $row['Periode'] }}</td>
-                    <td>{{ $row['Pemakaian'] }}</td>
-                    <td>{{ $row['Total'] }}</td>
-                    <td>{{ $row['Status Pembayaran'] }}</td>
-                    <td>{{ $row['Waktu Pembayaran'] }}</td>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $laporan->user->pelanggan->nama_pelanggan }}</td>
+                    <td>{{ $laporan->user->pelanggan->no_pelanggan }}</td>
+                    <td>{{ $laporan->periode }}</td>
+                    <td>{{ $laporan->pemakaian }}</td>
+                    <td>{{ $laporan->total }}</td>
+                    <td>
+                        @if ($laporan->pembayarans->isEmpty())
+                            Belum Dibayar
+                        @else
+                            {{ $laporan->pembayarans->first()->status }}
+                        @endif
+                    </td>
+                    <td>{{ $laporan->waktu_pembayaran }}</td>
                 </tr>
             @endforeach
         </tbody>

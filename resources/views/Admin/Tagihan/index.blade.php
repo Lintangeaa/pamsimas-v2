@@ -54,8 +54,10 @@
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $tagihan->pemakaian }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $tagihan->total }}</td>
                                         <td class="flex pt-2 space-x-2 text-center">
-                                            @if ($tagihan->pembayarans)
-                                            @else
+                                            @if (
+                                                !$tagihan->pembayarans ||
+                                                    $tagihan->pembayarans->isEmpty() ||
+                                                    $tagihan->pembayarans->where('status', 'pending')->isNotEmpty())
                                                 <form id="form-delete-{{ $tagihan->id }}"
                                                     action="{{ route('admin.tagihan.delete', $tagihan->id) }}"
                                                     method="POST">

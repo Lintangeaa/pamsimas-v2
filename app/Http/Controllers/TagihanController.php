@@ -12,16 +12,16 @@ class TagihanController extends Controller
 {
     public function index()
     {
-        $tagihans = Tagihan::all();
+        $tagihans = Tagihan::with('pembayarans')->get();
 
-        return view('admin.tagihan.index', compact('tagihans'));
+        return view('Admin/Tagihan/index', compact('tagihans'));
     }
 
     public function create()
     {
         // Untuk contoh sederhana, ambil semua user
         $users = User::where('role', 'pelanggan')->with('pelanggan')->get();
-        return view('Admin.Tagihan.buat-tagihan', compact('users'));
+        return view('Admin/Tagihan/buat-tagihan', compact('users'));
     }
 
     public function store(Request $request)
@@ -58,7 +58,7 @@ class TagihanController extends Controller
         $tagihan = Tagihan::findOrFail($id);
         $users = User::where('role', 'pelanggan')->get();
 
-        return view('admin.tagihan.edit', compact('tagihan', 'users'));
+        return view('Admin/Tagihan/edit', compact('tagihan', 'users'));
     }
 
     public function update(Request $request, $id)
@@ -119,7 +119,7 @@ class TagihanController extends Controller
             }
         })->whereDoesntHave('pembayarans')->get();
 
-        return view('admin.tagihan.cari-tagihan', compact('tagihans'));
+        return view('Admin/Tagihan/cari-tagihan', compact('tagihans'));
     }
 
 
@@ -134,7 +134,7 @@ class TagihanController extends Controller
             ->where('user_id', $userId)
             ->get();
 
-        return view('pelanggan.tagihan.index', compact('tagihans'));
+        return view('Pelanggan/Tagihan/index', compact('tagihans'));
     }
 
 }
