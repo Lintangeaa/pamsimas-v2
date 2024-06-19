@@ -1,4 +1,4 @@
-<aside x-data="{ open: false }" class="flex-shrink-0 w-64 bg-white border-r border-gray-100">
+<aside x-data="{ open: false }" class="flex-shrink-0 w-64 bg-blue-800 border-r border-gray-100">
     <!-- Sidebar Navigation -->
     <div class="flex flex-col h-full">
         <!-- Logo -->
@@ -12,7 +12,7 @@
             <x-dropdown align="left" width="48">
                 <x-slot name="trigger">
                     <button
-                        class="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md hover:text-gray-700 focus:outline-none">
+                        class="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-white transition duration-150 ease-in-out bg-red-500 border border-transparent rounded-md hover:bg-red-700 focus:outline-none">
                         <div>{{ Auth::user()->username }}</div>
 
                         <div class="ms-1">
