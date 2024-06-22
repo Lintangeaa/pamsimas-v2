@@ -37,13 +37,13 @@ class InvoiceExport
     $date = Carbon::parse($waktu_pembayaran)->setTimezone('Asia/Jakarta');
 
     $nama_hari = [
-      1 => 'Senin',
-      2 => 'Selasa',
-      3 => 'Rabu',
-      4 => 'Kamis',
-      5 => 'Jumat',
-      6 => 'Sabtu',
-      7 => 'Minggu',
+      0 => 'Senin',
+      1 => 'Selasa',
+      2 => 'Rabu',
+      3 => 'Kamis',
+      4 => 'Jumat',
+      5 => 'Sabtu',
+      6 => 'Minggu',
     ];
 
     $nama_bulan = [
@@ -61,7 +61,7 @@ class InvoiceExport
       12 => 'Desember',
     ];
 
-    $formatted_date = $nama_hari[$date->dayOfWeek + 1] . ', ' . $date->day . ' ' . $nama_bulan[$date->month] . ' ' . $date->year . ', ' . $date->format('H:i');
+    $formatted_date = $nama_hari[$date->dayOfWeek - 1] . ', ' . $date->day . ' ' . $nama_bulan[$date->month] . ' ' . $date->year . ', ' . $date->format('H:i');
 
     return $formatted_date;
 

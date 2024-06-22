@@ -96,16 +96,11 @@ class PembayaranController extends Controller
                 // Jika belum ada pembayaran, maka baru akan dibuat
                 $user = User::with('pelanggan')->findOrFail($tagihan->user_id);
 
-                // Konfigurasi Midtrans
+                Config::$isProduction = config('services.midtrans.is_production');
                 Config::$serverKey = config('services.midtrans.server_key');
                 Config::$clientKey = config('services.midtrans.client_key');
                 Config::$isSanitized = true;
                 Config::$is3ds = true;
-
-                Config::$curlOptions = [
-                    CURLOPT_SSL_VERIFYPEER => false,
-                    CURLOPT_SSL_VERIFYHOST => false,
-                ];
 
                 // Parameter untuk pembayaran Snap
                 $params = [

@@ -21,6 +21,6 @@ class AdminMiddleware
             return $next($request);
         }
 
-        return redirect()->route('login')->with('error', 'You do not have admin access');
+        return redirect()->route('pelanggan.tagihan.index')->with('error', 'You do not have admin access');
     }
 }

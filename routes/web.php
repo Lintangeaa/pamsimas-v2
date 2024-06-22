@@ -13,11 +13,10 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-});
-
+// ROUTE ADMIN
 Route::middleware(['auth', AdminMiddleware::class])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     Route::get('/admin/pelanggan', [PelangganController::class, 'getPelanggan'])->name('admin.pelanggan');
     Route::get('/admin/tambah-pelanggan', [PelangganController::class, 'getTambahPelanggan'])->name('tambah-pelanggan');
     Route::post('/admin/tambah-pelanggan', [PelangganController::class, 'tambahPelanggan'])->name('admin.tambah.pelanggan');
@@ -52,8 +51,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/pembayaran/{tagihan_id}', [PembayaranController::class, 'bayar'])->name('buat.bayar');
     Route::post('/pembayaran/status', [PembayaranController::class, 'handleStatus'])->name('pembayaran.status');
 
-    // PELANGGAN
+    // TAGIHAN PELANGGAN
     Route::get('/pelanggan/tagihan', [TagihanController::class, 'getTagihan'])->name('pelanggan.tagihan.index');
+
+    // PEMBAYARAN PELANGGAN
     Route::get('/pelanggan/pembayaran', [PembayaranController::class, 'getPembayaran'])->name('pelanggan.pembayaran.index');
     Route::get('/pelanggan/pembayaran/{tagihan_id}', [PembayaranController::class, 'cetakInvoice'])->name('pelanggan.cetak.invoice');
 });

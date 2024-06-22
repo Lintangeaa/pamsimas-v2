@@ -49,7 +49,7 @@
 
     <div class="flex-1 px-5 mt-10 overflow-y-auto">
 
-
+        {{-- SIDEBAR ADMIN --}}
         @if (Auth::user()->role === 'admin')
             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="flex">
                 <i class="bi bi-house-door" style="font-size: larger;"></i>
@@ -82,6 +82,7 @@
             </x-nav-link>
         @endif
 
+        {{-- SIDEBAR PELANGGAN --}}
         @if (Auth::user()->role === 'pelanggan')
             <x-nav-link :href="route('pelanggan.tagihan.index')" :active="request()->routeIs('pelanggan.tagihan.index')" class="flex items-center">
                 <i class="bi bi-receipt" style="font-size: larger;"></i>

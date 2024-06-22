@@ -42,7 +42,7 @@ class LaporanController extends Controller
             return $tagihan;
         });
 
-        return view('Admin/laporan/index', compact('laporans', 'startDate', 'endDate'));
+        return view('Admin/Laporan/index', compact('laporans', 'startDate', 'endDate'));
     }
 
     public function exportExcel(Request $request)

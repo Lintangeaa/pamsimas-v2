@@ -19,6 +19,6 @@ class DashboardController extends Controller
         // Menghitung total uang masuk dari pembayaran yang sukses (status == 'success')
         $totalUangMasuk = Pembayaran::where('status', 'success')->sum('total_pembayaran');
 
-        return view('dashboard', compact('totalPelanggan', 'tagihanBelumDibayar', 'totalUangMasuk'));
+        return view('Admin/Dashboard/index', compact('totalPelanggan', 'tagihanBelumDibayar', 'totalUangMasuk'));
     }
 }
