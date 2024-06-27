@@ -23,7 +23,7 @@ class PelangganController extends Controller
         // Fetch users with their related pelanggan
         $pelanggans = User::with('pelanggan')->where('role', 'pelanggan')->get();
 
-        return view('Admin/Pelanggan/Index', compact('pelanggans'));
+        return view('Admin/Pelanggan/index', compact('pelanggans'));
     }
 
 
@@ -75,7 +75,7 @@ class PelangganController extends Controller
         $user = User::findOrFail($id);
         $pelanggan = Pelanggan::where('user_id', $id)->firstOrFail();
         // Tampilkan view edit dengan data user dan pelanggan
-        return view('Admin/Pelanggan/Edit', compact('user', 'pelanggan'));
+        return view('Admin/Pelanggan/edit', compact('user', 'pelanggan'));
     }
 
 

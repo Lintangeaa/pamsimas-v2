@@ -5,20 +5,49 @@ namespace App\Http\Controllers;
 use App\Models\Pelanggan;
 use App\Models\Tagihan;
 use App\Models\Pembayaran;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $totalPelanggan = Pelanggan::count();
 
-        // Mengambil data tagihan yang belum dibayar
-        $tagihanBelumDibayar = Tagihan::whereDoesntHave('pembayarans')->count();
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
-        // Menghitung total uang masuk dari pembayaran yang sukses (status == 'success')
-        $totalUangMasuk = Pembayaran::where('status', 'success')->sum('total_pembayaran');
+        $tagihanQuery = Tagihan::query();
 
-        return view('Admin/Dashboard/index', compact('totalPelanggan', 'tagihanBelumDibayar', 'totalUangMasuk'));
+        if ($startDate && $endDate) {
+            $tagihanQuery->whereBetween('periode', [$startDate, $endDate]);
+        } elseif ($startDate) {
+            $tagihanQuery->where('periode', '>=', $startDate);
+        } elseif ($endDate) {
+            $tagihanQuery->where('periode', '<=', $endDate);
+        }
+
+        $totalUangMasuk = $tagihanQuery->whereHas('pembayarans', function ($query) {
+            $query->where('status', '=', 'success');
+        })
+            ->sum('total');
+
+        $tagihanSudahDibayar = $tagihanQuery->whereHas('pembayarans', function ($query) {
+            $query->where('status', '!=', 'pending');
+        })
+            ->count();
+
+        $tagihanBelumDibayar = $tagihanQuery->where(function ($query) {
+            $query->whereDoesntHave('pembayarans')
+                ->orWhereHas('pembayarans', function ($query) {
+                    $query->where('status', 'pending');
+                });
+        })
+            ->orWhereDoesntHave('pembayarans') // Menambahkan pengecualian untuk tagihan tanpa pembayaran sama sekali
+            ->count();
+
+
+        return view('Admin/Dashboard/index', compact('totalPelanggan', 'tagihanBelumDibayar', 'tagihanSudahDibayar', 'totalUangMasuk'));
     }
 }
