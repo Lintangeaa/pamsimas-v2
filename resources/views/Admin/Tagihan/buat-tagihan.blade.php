@@ -36,8 +36,8 @@
                             </div>
                             <div>
                                 <x-input-label for="total" :value="__('Total')" />
-                                <x-text-input id="total" class="block w-full mt-1" type="number" name="total"
-                                    required />
+                                <x-text-input id="total" class="block w-full mt-1" value="0" type="number"
+                                    name="total" disabled required />
                             </div>
                         </div>
                         <div class="flex justify-end">
@@ -51,14 +51,34 @@
         </div>
     </div>
 
-    @if (session('success'))
-        <script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const pemakaian = document.getElementById('pemakaian');
+            const total = document.getElementById('total');
+
+            function updateTotal() {
+                const pemakaianValue = parseFloat(pemakaian.value) || 0;
+                let totalSum = 10000;
+
+                if (pemakaianValue > 1) {
+                    totalSum += 20000;
+                }
+                if (pemakaianValue > 10) {
+                    totalSum += (pemakaianValue - 10) * 2500;
+                }
+                total.value = totalSum + 1000;
+            }
+
+            pemakaian.addEventListener('input', updateTotal);
+        });
+
+        @if (session('success'))
             Swal.fire({
                 title: 'Sukses!',
                 text: `{{ session('success') }}`,
                 icon: 'success',
                 confirmButtonText: 'OK'
             });
-        </script>
-    @endif
+        @endif
+    </script>
 </x-app-layout>

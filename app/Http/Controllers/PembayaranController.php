@@ -2,25 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\InvoiceExport;
-use App\Exports\LaporanExport;
 use App\Models\Pembayaran;
 use App\Models\Tagihan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Midtrans\Notification;
-use Midtrans\Snap;
-use Midtrans\Config;
-use Log;
-
 
 class PembayaranController extends Controller
 {
-
+    // Metode untuk pembayaran via admin
     public function index(Request $request)
     {
+        // Query untuk mengambil tagihan beserta pembayarannya
         $tagihans = Tagihan::with('pembayarans')
             ->whereHas('user.pelanggan', function ($query) use ($request) {
                 if ($request->has('no_pelanggan')) {
@@ -29,114 +22,44 @@ class PembayaranController extends Controller
             })
             ->get();
 
-        // Array nama hari dalam bahasa Indonesia
-        $nama_hari = [
-            1 => 'Senin',
-            2 => 'Selasa',
-            3 => 'Rabu',
-            4 => 'Kamis',
-            5 => 'Jumat',
-            6 => 'Sabtu',
-            7 => 'Minggu',
-        ];
-
-        // Array nama bulan dalam bahasa Indonesia
-        $nama_bulan = [
-            1 => 'Januari',
-            2 => 'Februari',
-            3 => 'Maret',
-            4 => 'April',
-            5 => 'Mei',
-            6 => 'Juni',
-            7 => 'Juli',
-            8 => 'Agustus',
-            9 => 'September',
-            10 => 'Oktober',
-            11 => 'November',
-            12 => 'Desember',
-        ];
-
+        // Format waktu pembayaran
         foreach ($tagihans as $tagihan) {
             if ($tagihan->pembayarans->isNotEmpty() && $tagihan->pembayarans->first()->status) {
-                // Ambil waktu pembayaran dari model Pembayaran
                 $waktu_pembayaran = $tagihan->pembayarans->first()->updated_at;
+                $formatted_date = Carbon::parse($waktu_pembayaran)->setTimezone('Asia/Jakarta')
+                    ->isoFormat('dddd, D MMMM Y, HH:mm');
 
-                // Konversi waktu ke zona waktu WIB (Asia/Jakarta)
-                $date = Carbon::parse($waktu_pembayaran)->setTimezone('Asia/Jakarta');
-
-                // Mendapatkan nama hari dan bulan dalam bahasa Indonesia
-                $hari = $nama_hari[$date->dayOfWeek];
-                $bulan = $nama_bulan[$date->month];
-
-                // Format waktu
-                $formatted_date = $hari . ', ' . $date->format('d') . ' ' . $bulan . ' ' . $date->format('Y, H:i');
-
-                // Tambahkan atribut baru ke dalam objek $tagihan
                 $tagihan->waktu_pembayaran = $formatted_date;
             } else {
-                // Jika belum dibayar, tetapkan teks 'Belum Dibayar'
                 $tagihan->waktu_pembayaran = '-';
             }
         }
 
-        return view('Admin/Pembayaran/index', compact('tagihans'));
+        return view('Admin.Pembayaran.index', compact('tagihans'));
     }
 
+    // Metode untuk inisiasi pembayaran (Snap Token)
     public function bayar(Request $request, $tagihan_id)
     {
         try {
             $tagihan = Tagihan::findOrFail($tagihan_id);
 
-
+            // Cek apakah sudah ada pembayaran untuk tagihan ini
             $pembayaran = Pembayaran::where('tagihan_id', $tagihan->id)->first();
 
             if ($pembayaran) {
-                $snapToken = $pembayaran->snap_token;
+                return response()->json(['snap_token' => $pembayaran->snap_token, 'code' => $pembayaran->code]);
             } else {
-                // Jika belum ada pembayaran, maka baru akan dibuat
-                $user = User::with('pelanggan')->findOrFail($tagihan->user_id);
-
-                Config::$isProduction = config('services.midtrans.is_production');
-                Config::$serverKey = config('services.midtrans.server_key');
-                Config::$clientKey = config('services.midtrans.client_key');
-                Config::$isSanitized = true;
-                Config::$is3ds = true;
-
-                // Parameter untuk pembayaran Snap
-                $params = [
-                    'transaction_details' => [
-                        'order_id' => $user->pelanggan->no_pelanggan . '_' . Carbon::now()->timestamp,
-                        'gross_amount' => $tagihan->total,
-                    ],
-                    'customer_details' => [
-                        'first_name' => $user->pelanggan->nama_pelanggan,
-                    ],
-                ];
-
-                // Mendapatkan token Snap
-                $snapToken = Snap::getSnapToken($params);
-
-                // Membuat entri pembayaran baru
-                $pembayaran = Pembayaran::create([
-                    'code' => $params['transaction_details']['order_id'],
-                    'tagihan_id' => $tagihan_id,
-                    'total_pembayaran' => $tagihan->total,
-                    'status' => 'pending',
-                    'snap_token' => $snapToken,
-                ]);
+                return response()->json(['error' => 'Pembayaran not found for this tagihan'], 404);
             }
-
-            // Mengembalikan snapToken sebagai respons JSON
-            return response()->json(['snap_token' => $snapToken, 'code' => $pembayaran->code]);
         } catch (\Exception $e) {
-            // Mengembalikan pesan error jika ada masalah
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
+    // Metode untuk menangani status pembayaran
     public function handleStatus(Request $request)
     {
-
         $request->validate([
             'transaction_status' => 'required',
             'order_id' => 'required',
@@ -154,80 +77,37 @@ class PembayaranController extends Controller
 
         // Update status pembayaran sesuai transaction_status
         $transactionStatus = $request->transaction_status;
-
         $pembayaran->status = $transactionStatus;
-
         $pembayaran->save();
 
         return response()->json(['success' => true]);
     }
 
-    //PELANGGAN
-    public function getPembayaran()
+    // Metode untuk pembayaran tunai (langsung sukses)
+    public function bayarCash(Request $request, $tagihan_id)
     {
-        $userId = auth()->user()->id;
+        try {
+            $tagihan = Tagihan::findOrFail($tagihan_id);
 
-        // Query untuk mencari tagihan yang belum memiliki pembayaran berdasarkan user ID
-        $pembayarans = Tagihan::with('pembayarans')
-            ->where('user_id', $userId)
-            ->get();
+            // Cek apakah sudah ada pembayaran untuk tagihan ini
+            $pembayaran = Pembayaran::where('tagihan_id', $tagihan->id)->first();
 
-        // Array nama hari dalam bahasa Indonesia
-        $nama_hari = [
-            1 => 'Senin',
-            2 => 'Selasa',
-            3 => 'Rabu',
-            4 => 'Kamis',
-            5 => 'Jumat',
-            6 => 'Sabtu',
-            7 => 'Minggu',
-        ];
+            if (!$pembayaran) {
+                // Simpan informasi pembayaran tunai
+                $pembayaran = Pembayaran::create([
+                    'code' => $tagihan->user->pelanggan->no_pelanggan . '_' . Carbon::now()->timestamp,
+                    'snap_token' => 'Tunai',
+                    'tagihan_id' => $tagihan_id,
+                    'total_pembayaran' => $tagihan->total,
+                    'status' => 'success',
+                ]);
 
-        // Array nama bulan dalam bahasa Indonesia
-        $nama_bulan = [
-            1 => 'Januari',
-            2 => 'Februari',
-            3 => 'Maret',
-            4 => 'April',
-            5 => 'Mei',
-            6 => 'Juni',
-            7 => 'Juli',
-            8 => 'Agustus',
-            9 => 'September',
-            10 => 'Oktober',
-            11 => 'November',
-            12 => 'Desember',
-        ];
-
-        foreach ($pembayarans as $data) {
-            if ($data->pembayarans->isNotEmpty() && $data->pembayarans->first()->status) {
-                // Ambil waktu pembayaran dari model Pembayaran
-                $waktu_pembayaran = $data->pembayarans->first()->updated_at;
-
-                // Konversi waktu ke zona waktu WIB (Asia/Jakarta)
-                $date = Carbon::parse($waktu_pembayaran)->setTimezone('Asia/Jakarta');
-
-                // Mendapatkan nama hari dan bulan dalam bahasa Indonesia
-                $hari = $nama_hari[$date->dayOfWeek];
-                $bulan = $nama_bulan[$date->month];
-
-                // Format waktu
-                $formatted_date = $hari . ', ' . $date->format('d') . ' ' . $bulan . ' ' . $date->format('Y, H:i');
-
-                // Tambahkan atribut baru ke dalam objek $data
-                $data->waktu_pembayaran = $formatted_date;
+                return response()->json(['message' => 'Pembayaran tunai berhasil'], 200);
             } else {
-                // Jika belum dibayar, tetapkan teks 'Belum Dibayar'
-                $data->waktu_pembayaran = '-';
+                return response()->json(['error' => 'Pembayaran sudah dilakukan'], 400);
             }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        return view('Pelanggan/Pembayaran/index', compact('pembayarans'));
-    }
-
-    public function cetakInvoice($tagihan_id)
-    {
-        $export = new InvoiceExport();
-        $export->exportInvoice($tagihan_id);
     }
 }

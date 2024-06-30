@@ -36,6 +36,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     //pembayaran
     Route::get('/admin/pembayaran', [PembayaranController::class, 'index'])->name('admin.pembayaran.index');
     Route::get('/admin/pembayaran/{tagihan_id}', [PembayaranController::class, 'bayar'])->name('admin.pembayaran.bayar');
+    Route::post('/admin/pembayaran/cash/{tagihan_id}', [PembayaranController::class, 'bayarCash'])->name('admin.pembayaran.cash');
 
     //laporan
     Route::get('/admin/laporan', [LaporanController::class, 'index'])->name('admin.laporan.index');

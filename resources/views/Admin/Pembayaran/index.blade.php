@@ -54,8 +54,6 @@
                                             {{ $tagihan->waktu_pembayaran }}
                                         </td>
 
-
-
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if ($tagihan->pembayarans->isEmpty() || $tagihan->pembayarans->first()->status == 'pending')
                                                 <button
@@ -63,6 +61,13 @@
                                                     onclick="handleBayar('{{ $tagihan->id }}', '{{ $tagihan->total }}')">
                                                     Bayar
                                                 </button>
+                                                @if ($tagihan->pembayarans->isEmpty())
+                                                    <button
+                                                        class="px-4 py-1 ml-2 text-white bg-green-500 rounded-md hover:bg-green-600"
+                                                        onclick="handleBayarCash('{{ $tagihan->id }}', '{{ $tagihan->total }}')">
+                                                        Bayar Tunai
+                                                    </button>
+                                                @endif
                                             @endif
                                         </td>
                                     </tr>
@@ -145,6 +150,29 @@
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Terjadi kesalahan saat memperbarui status pembayaran.');
+                });
+        }
+
+        function handleBayarCash(tagihanId, totalBayar) {
+            fetch(`{{ url('/admin/pembayaran/cash') }}/${tagihanId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        tagihan_id: tagihanId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('data', data)
+                    alert('Pembayaran tunai berhasil!');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat memproses pembayaran tunai.');
                 });
         }
     </script>
