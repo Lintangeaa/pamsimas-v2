@@ -36,8 +36,8 @@
                             </div>
                             <div>
                                 <x-input-label for="total" :value="__('Total')" />
-                                <x-text-input id="total" class="block w-full mt-1" value="0" type="number"
-                                    name="total" disabled required />
+                                <x-text-input id="total" class="block w-full mt-1" type="number" name="total"
+                                    required />
                             </div>
                         </div>
                         <div class="flex justify-end">
@@ -73,6 +73,7 @@
         });
 
         @if (session('success'))
+
             Swal.fire({
                 title: 'Sukses!',
                 text: `{{ session('success') }}`,
@@ -81,4 +82,5 @@
             });
         @endif
     </script>
+
 </x-app-layout>
